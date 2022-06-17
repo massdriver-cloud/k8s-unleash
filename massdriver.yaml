@@ -11,7 +11,7 @@ steps:
     provisioner: terraform
 
 params:
-  examples: {}
+  examples: []
   required:
     - namespace
   properties:
@@ -34,8 +34,8 @@ connections:
       $ref: massdriver/postgresql-authentication
 
 artifacts:
-  required: {}
-  properties: {}
+  required: []
+  properties: []
 
 ui:
   ui:order:
