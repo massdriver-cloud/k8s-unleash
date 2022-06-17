@@ -35,7 +35,7 @@ connections:
 
 artifacts:
   required: []
-  properties: []
+  properties: {}
 
 ui:
   ui:order:
