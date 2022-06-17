@@ -1,0 +1,15 @@
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/instance
+                operator: In
+                values:
+                  - unleash
+          topologyKey: failure-domain.beta.kubernetes.io/zone
+        weight: 100
+
+postgresql:
+  enabled: false

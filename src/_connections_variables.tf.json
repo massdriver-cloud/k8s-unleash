@@ -1,0 +1,10 @@
+{
+  "variable": {
+    "kubernetes_cluster": {
+      "type": "any"
+    },
+    "postgresql_authentication": {
+      "type": "any"
+    }
+  }
+}

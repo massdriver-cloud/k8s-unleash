@@ -1,0 +1,42 @@
+# This file will be used to generate all of the schema-*.json files in a bundle
+schema: draft-07
+name: "k8s-unleash"
+description: "Unleash is a open source feature flag & toggle system, that gives you a great overview over all feature toggles across all your applications and services. It comes with official client implementations for Java, Node.js, Go, Ruby, Python and .NET Core."
+ref: github.com/massdriver-cloud/k8s-unleash
+access: "private"
+type: "bundle"
+
+steps:
+  - path: src
+    provisioner: terraform
+
+params:
+  examples: {}
+  required:
+    - namespace
+  properties:
+    namespace:
+      type: string
+      title: Namespace
+      description: Choose a namespace for Unleash.
+      pattern: "^[a-z]{1,}[a-z0-9-]{0,62}$"
+      message:
+        pattern: Namespace can only contain lowercase letters, numbers, and hyphens, with a max of 63 characters.
+
+connections:
+  required:
+    - kubernetes_cluster
+    - postgresql_authentication
+  properties:
+    kubernetes_cluster:
+      $ref: massdriver/kubernetes-cluster
+    postgresql_authentication:
+      $ref: massdriver/postgresql-authentication
+
+artifacts:
+  required: {}
+  properties: {}
+
+ui:
+  ui:order:
+    - namespace
