@@ -2,7 +2,7 @@
 schema: draft-07
 name: "k8s-unleash"
 description: "Unleash is a open source feature flag & toggle system, that gives you a great overview over all feature toggles across all your applications and services. It comes with official client implementations for Java, Node.js, Go, Ruby, Python and .NET Core."
-ref: github.com/massdriver-cloud/k8s-unleash
+source_url: github.com/massdriver-cloud/k8s-unleash
 access: "private"
 type: "bundle"
 
