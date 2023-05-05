@@ -1,11 +1,6 @@
 locals {
-  chart_version = "2.6.1"
+  chart_version = "2.8.0"
   release       = var.md_metadata.name_prefix
-}
-
-resource "random_password" "unleash_secret" {
-  length  = 16
-  special = false
 }
 
 resource "helm_release" "unleash" {

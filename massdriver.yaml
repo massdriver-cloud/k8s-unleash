@@ -4,24 +4,143 @@ name: "k8s-unleash"
 description: "Unleash is a open source feature flag & toggle system, that gives you a great overview over all feature toggles across all your applications and services. It comes with official client implementations for Java, Node.js, Go, Ruby, Python and .NET Core."
 source_url: github.com/massdriver-cloud/k8s-unleash
 access: "private"
-type: "bundle"
-
-steps:
-  - path: src
-    provisioner: terraform
+type: "infrastructure"
 
 params:
-  examples: []
   required:
     - namespace
+    - database
+    - ingress
+    - resources
+    - autoscaling
   properties:
     namespace:
       type: string
       title: Namespace
-      description: Choose a namespace for Unleash.
-      pattern: "^[a-z]{1,}[a-z0-9-]{0,62}$"
-      message:
-        pattern: Namespace can only contain lowercase letters, numbers, and hyphens, with a max of 63 characters.
+      description: The kubernetes namespace to install unleash into
+      $ref: https://raw.githubusercontent.com/massdriver-cloud/artifact-definitions/main/definitions/types/k8s-resource-name.json
+      default: unleash
+      $md.immutable: true
+    database:
+      type: object
+      title: Database Configuration
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          title: Database Name
+          description: The name of the database to use. **Note:** this database must already exist!
+          default: unleash
+          $md.immutable: true
+    ingress:
+      type: object
+      title: Ingress Configuration
+      description: Settings to enable and configure internet access to Unleash
+      required:
+        - enabled
+      properties:
+        enabled:
+          type: boolean
+          title: Enable Ingress
+          description: Enabling this will expose unleash on the public internet
+          default: false
+      dependencies:
+        enabled:
+          oneOf:
+          - properties:
+              enabled:
+                const: false
+          - properties:
+              enabled:
+                const: true
+              host:
+                title: HTTP Hostname
+                description: The hostname to expose unleash on such as unleash.mydomain.com. You must own this domain and have it associated with this kubernetes cluster if you would like automatic DNS record and SSL certificate management.
+                type: string
+                pattern: ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$
+                message:
+                  pattern: Hostname should consist of letters, numbers, periods and hyphens, such as www.example.com
+              path:
+                title: HTTP Path
+                description: The HTTP path which, when appended to the host above, this application will serve traffic on
+                type: string
+                default: "/"
+                pattern: ^\/.*$
+                message:
+                  pattern: Must begin with a '/' and be a valid HTTP endpoint
+            required:
+              - host
+              - path
+    resources:
+      type: object
+      title: Resources
+      required:
+        - enable_limits
+        - requests
+      properties:
+        enable_limits:
+          type: boolean
+          title: Enable Limits
+          description: Enabling this will set [resource limits](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#requests-and-limits) in addition to the requests (values will be the same as requested values)
+          default: false
+        requests:
+          type: object
+          title: Resources Requests
+          required:
+            - cpu
+            - memory
+          properties:
+            cpu:
+              title: CPU Cores
+              description: The expected CPU cores required for this application. Fractional numbers are allowed (0.5 is one half of a CPU core).
+              type: number
+              minimum: 0.001
+            memory:
+              title: Memory
+              description: The expected Memory resources required for this application.
+              type: integer
+    autoscaling:
+      type: object
+      title: Autoscaling Configuration
+      required:
+        - enabled
+      properties:
+        enabled:
+          type: boolean
+          title: Enable Autoscaling
+          default: false
+      dependencies:
+        enabled:
+          oneOf:
+          - properties:
+              enabled:
+                const: true
+              minReplicas:
+                type: integer
+                title: Minimum Replicas
+                default: 1
+              maxReplicas:
+                type: integer
+                title: Maximum Replicas
+                default: 5
+              targetCPUUtilizationPercentage:
+                type: integer
+                title: Target CPU Utilization Percentage
+                default: 70
+            required:
+              - minReplicas
+              - maxReplicas
+              - targetCPUUtilizationPercentage
+          - properties:
+              enabled:
+                const: false
+              replicaCount:
+                type: integer
+                title: Replica Count
+                default: 1
+            required:
+              - replicas
 
 connections:
   required:
@@ -34,9 +153,40 @@ connections:
       $ref: massdriver/postgresql-authentication
 
 artifacts:
-  required: []
-  properties: {}
+  required:
+    - internal
+  properties:
+    internal:
+      $ref: massdriver/api
 
 ui:
   ui:order:
     - namespace
+    - database
+    - ingress
+    - resources
+    - autoscaling
+    - "*"
+  ingress:
+    ui:order:
+      - enabled
+      - host
+      - path
+      - "*"
+  resources:
+    ui:order:
+      - requests
+      - enable_limits
+      - "*"
+    requests:
+      memory:
+        ui:field: conversionFieldData
+        unit: Bytes
+  autoscaling:
+    ui:order:
+      - enabled
+      - minReplicas
+      - maxReplicas
+      - targetCPUUtilizationPercentage
+      - replicaCount
+      - "*"

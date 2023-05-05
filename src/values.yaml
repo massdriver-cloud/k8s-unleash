@@ -1,15 +1,7 @@
-affinity:
-  podAntiAffinity:
-    preferredDuringSchedulingIgnoredDuringExecution:
-      - podAffinityTerm:
-          labelSelector:
-            matchExpressions:
-              - key: app.kubernetes.io/instance
-                operator: In
-                values:
-                  - unleash
-          topologyKey: failure-domain.beta.kubernetes.io/zone
-        weight: 100
-
+# don't install postgres chart
 postgresql:
   enabled: false
+
+# disable memory autoscaling
+autoscaling:
+  targetMemoryUtilizationPercentage: null
