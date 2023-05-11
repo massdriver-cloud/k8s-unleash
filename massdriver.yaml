@@ -139,8 +139,9 @@ params:
                 type: integer
                 title: Replica Count
                 default: 1
+                minimum: 1
             required:
-              - replicas
+              - replicaCount
 
 connections:
   required:
