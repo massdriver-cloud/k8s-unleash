@@ -17,7 +17,7 @@ Unleash is a open source feature flag & toggle system, that gives you a great ov
 
 ## Design
 
-For detailed information, check out our [Operator Guide](operator.mdx) for this bundle.
+For detailed information, check out our [Operator Guide](operator.md) for this bundle.
 
 ## Usage
 
