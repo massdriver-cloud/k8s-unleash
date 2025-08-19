@@ -1,44 +1,42 @@
-# This file will be used to generate all of the schema-*.json files in a bundle
 schema: draft-07
-name: "k8s-unleash"
-description: "Unleash is a open source feature flag & toggle system, that gives you a great overview over all feature toggles across all your applications and services. It comes with official client implementations for Java, Node.js, Go, Ruby, Python and .NET Core."
-source_url: github.com/massdriver-cloud/k8s-unleash
-access: "private"
-type: "infrastructure"
-
+name: k8s-unleash
+version: 1.0.0
+description: Unleash is a open source feature flag & toggle system, that gives you a great overview over all feature toggles across all your applications and services. It comes with official client implementations for Java, Node.js, Go, Ruby, Python and .NET Core.
+source_url: https://github.com/massdriver-cloud/k8s-unleash
+type: application
 params:
   required:
-    - namespace
-    - database
-    - ingress
-    - resources
-    - autoscaling
+  - namespace
+  - database
+  - ingress
+  - resources
+  - autoscaling
   properties:
     namespace:
       type: string
       title: Namespace
       description: The kubernetes namespace to install unleash into
-      $ref: https://raw.githubusercontent.com/massdriver-cloud/artifact-definitions/main/definitions/types/k8s-resource-name.json
+      "$ref": https://raw.githubusercontent.com/massdriver-cloud/artifact-definitions/main/definitions/types/k8s-resource-name.json
       default: unleash
-      $md.immutable: true
+      "$md.immutable": true
     database:
       type: object
       title: Database Configuration
       required:
-        - name
+      - name
       properties:
         name:
           type: string
           title: Database Name
           description: The name of the database to use. **Note:** this database must already exist!
           default: unleash
-          $md.immutable: true
+          "$md.immutable": true
     ingress:
       type: object
       title: Ingress Configuration
       description: Settings to enable and configure internet access to Unleash
       required:
-        - enabled
+      - enabled
       properties:
         enabled:
           type: boolean
@@ -58,7 +56,7 @@ params:
                 title: HTTP Hostname
                 description: The hostname to expose unleash on such as unleash.mydomain.com. You must own this domain and have it associated with this kubernetes cluster if you would like automatic DNS record and SSL certificate management.
                 type: string
-                pattern: ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$
+                pattern: "^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])$"
                 message:
                   pattern: Hostname should consist of letters, numbers, periods and hyphens, such as www.example.com
               path:
@@ -66,18 +64,18 @@ params:
                 description: The HTTP path which, when appended to the host above, this application will serve traffic on
                 type: string
                 default: "/"
-                pattern: ^\/.*$
+                pattern: "^\\/.*$"
                 message:
                   pattern: Must begin with a '/' and be a valid HTTP endpoint
             required:
-              - host
-              - path
+            - host
+            - path
     resources:
       type: object
       title: Resources
       required:
-        - enable_limits
-        - requests
+      - enable_limits
+      - requests
       properties:
         enable_limits:
           type: boolean
@@ -88,8 +86,8 @@ params:
           type: object
           title: Resources Requests
           required:
-            - cpu
-            - memory
+          - cpu
+          - memory
           properties:
             cpu:
               title: CPU Cores
@@ -104,7 +102,7 @@ params:
       type: object
       title: Autoscaling Configuration
       required:
-        - enabled
+      - enabled
       properties:
         enabled:
           type: boolean
@@ -129,9 +127,9 @@ params:
                 title: Target CPU Utilization Percentage
                 default: 70
             required:
-              - minReplicas
-              - maxReplicas
-              - targetCPUUtilizationPercentage
+            - minReplicas
+            - maxReplicas
+            - targetCPUUtilizationPercentage
           - properties:
               enabled:
                 const: false
@@ -141,53 +139,56 @@ params:
                 default: 1
                 minimum: 1
             required:
-              - replicaCount
-
+            - replicaCount
 connections:
   required:
-    - kubernetes_cluster
-    - postgresql_authentication
+  - kubernetes_cluster
+  - postgresql_authentication
   properties:
     kubernetes_cluster:
-      $ref: massdriver/kubernetes-cluster
+      "$ref": massdriver/kubernetes-cluster
     postgresql_authentication:
-      $ref: massdriver/postgresql-authentication
-
+      "$ref": massdriver/postgresql-authentication
 artifacts:
   required:
-    - internal
+  - internal
   properties:
     internal:
-      $ref: massdriver/api
-
+      "$ref": massdriver/api
 ui:
   ui:order:
-    - namespace
-    - database
-    - ingress
-    - resources
-    - autoscaling
-    - "*"
+  - namespace
+  - database
+  - ingress
+  - resources
+  - autoscaling
+  - "*"
   ingress:
     ui:order:
-      - enabled
-      - host
-      - path
-      - "*"
+    - enabled
+    - host
+    - path
+    - "*"
   resources:
     ui:order:
-      - requests
-      - enable_limits
-      - "*"
+    - requests
+    - enable_limits
+    - "*"
     requests:
       memory:
         ui:field: conversionFieldData
         unit: Bytes
   autoscaling:
     ui:order:
-      - enabled
-      - minReplicas
-      - maxReplicas
-      - targetCPUUtilizationPercentage
-      - replicaCount
-      - "*"
+    - enabled
+    - minReplicas
+    - maxReplicas
+    - targetCPUUtilizationPercentage
+    - replicaCount
+    - "*"
+steps:
+- path: src
+  provisioner: opentofu
+  config:
+    checkov:
+      enable: true
